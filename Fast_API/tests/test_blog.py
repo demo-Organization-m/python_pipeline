@@ -9,7 +9,7 @@ import tests
 import pytest
 from fastapi.testclient import TestClient
 from fastapi import FastAPI
-from api.router.blog import router
+from router.blog import router
 
 
 app = FastAPI()
