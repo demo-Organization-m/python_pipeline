@@ -204,3 +204,15 @@ jobs:
           done
         env:
           GH_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
+      - name: Build Docker image for FastAPI
+        run: docker build -t fastapi-backend:latest -f Dockerfile .
+
+      - name: Tag Docker image for GHCR
+        run: |
+          REPO_OWNER_LC=$(echo "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')
+          docker tag fastapi-backend:latest ghcr.io/${REPO_OWNER_LC}/fastapi-backend:latest
+
+      - name: Push image to GHCR
+        run: |
+          REPO_OWNER_LC=$(echo "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')
+          docker push ghcr.io/${REPO_OWNER_LC}/fastapi-backend:latest
