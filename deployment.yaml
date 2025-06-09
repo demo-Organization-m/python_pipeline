@@ -16,7 +16,7 @@ spec:
         - name: react-app
           image:  ghcr.io/demo-Organization-m/python-application:latest
           ports:
-            - containerPort: 3000
+            - containerPort: 3001
           imagePullPolicy: Always
       imagePullSecrets:
         - name: ghcr-secret
