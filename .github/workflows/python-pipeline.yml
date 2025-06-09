@@ -83,7 +83,7 @@ jobs:
   
       - name: Zip Fast_API folder into artifact
         run: |
-          zip -r python-package.zip Fast_API
+          zip -r python-package.zip .
   
       - name: Upload Python Artifact
         uses: actions/upload-artifact@v4
