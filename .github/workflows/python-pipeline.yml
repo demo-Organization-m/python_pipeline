@@ -77,24 +77,20 @@ jobs:
     steps:
       - name: Checkout Source Code
         uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.10"
-
-      - name: Build Package
+  
+      - name: Install zip tool
+        run: sudo apt-get update && sudo apt-get install -y zip
+  
+      - name: Zip Fast_API folder into artifact
         run: |
-          pip install build
-          python -m build --sdist --wheel --outdir dist/
-          cd dist && zip -r ../python-package.zip .
-
+          zip -r python-package.zip Fast_API
+  
       - name: Upload Python Artifact
         uses: actions/upload-artifact@v4
         with:
           name: python-Artifact-code
           path: python-package.zip
-
+  
       - name: Checkout Artifact Repo
         uses: actions/checkout@v4
         with:
@@ -102,10 +98,10 @@ jobs:
           ref: main
           token: ${{ secrets.MY_GITHUB_TOKEN }}
           path: Artifact_Storage
-
+  
       - name: Create Artifact Directory
         run: mkdir -p Artifact_Storage/Backend_Artifact
-
+  
       - name: Check for existing latest version hash
         id: skip-check
         run: |
@@ -116,18 +112,18 @@ jobs:
           else
             echo "no_previous_hash" > ../../latest_hash.txt
           fi
-
+  
       - name: Download Python Artifact
         uses: actions/download-artifact@v4
         with:
           name: python-Artifact-code
           path: python-Artifact-code
-
+  
       - name: Generate current artifact hash
         run: |
           cd python-Artifact-code
           unzip -p python-package.zip | sha256sum | cut -d' ' -f1 > ../current_hash.txt
-
+  
       - name: Check for changes
         id: hash-diff
         run: |
@@ -136,11 +132,11 @@ jobs:
           else
             echo "no_change=false" >> $GITHUB_OUTPUT
           fi
-
+  
       - name: Skip if no changes
         if: steps.hash-diff.outputs.no_change == 'true'
         run: echo "No changes in Python Artifact code — skipping commit and push."
-
+  
       - name: Determine next version
         if: steps.hash-diff.outputs.no_change == 'false'
         id: version
@@ -148,21 +144,19 @@ jobs:
           cd Artifact_Storage/Backend_Artifact
           count=$(ls Backend_Artifact-v*.zip 2>/dev/null | wc -l)
           echo "version=v$((count + 1))" >> $GITHUB_OUTPUT
-
+  
       - name: Rename and move artifact
         if: steps.hash-diff.outputs.no_change == 'false'
         run: |
           VERSION=${{ steps.version.outputs.version }}
-          ZIPFILE=$(find python-Artifact-code -name '*.zip' | head -n 1)
-          echo "Found artifact zip: $ZIPFILE"
           mv python-Artifact-code/python-package.zip Artifact_Storage/Backend_Artifact/Backend_Artifact-${VERSION}.zip
           cp Artifact_Storage/Backend_Artifact/Backend_Artifact-${VERSION}.zip Artifact_Storage/Backend_Artifact/Backend_Artifact-latest.zip
-
+  
       - name: Validate ZIP presence
         if: steps.hash-diff.outputs.no_change == 'false'
         run: ls -lh Artifact_Storage/Backend_Artifact
-
-      - name: Commit and push ZIP to development branch
+  
+      - name: Commit and push ZIP to main branch
         if: steps.hash-diff.outputs.no_change == 'false'
         run: |
           cd Artifact_Storage
@@ -171,6 +165,7 @@ jobs:
           git add Backend_Artifact/Backend_Artifact-*.zip
           git commit -m "Add Backend_Artifact ${{ steps.version.outputs.version }}"
           git push origin main
+
 
   # create-pr-development-main:
   #   name: Create PR development to main Branch
