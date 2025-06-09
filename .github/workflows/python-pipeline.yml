@@ -167,40 +167,40 @@ jobs:
           git push origin main
 
 
-  # create-pr-development-main:
-  #   name: Create PR development to main Branch
-  #   needs: build-and-publish-artifact
-  #   runs-on: ubuntu-latest
-  #   outputs:
-  #     pr_url: ${{ steps.create_pr.outputs.pr_url }}
-  #   steps:
-  #     - name: Checkout Code
-  #       uses: actions/checkout@v4
+  create-pr-development-main:
+    name: Create PR development to main Branch
+    needs: build-and-publish-artifact
+    runs-on: ubuntu-latest
+    outputs:
+      pr_url: ${{ steps.create_pr.outputs.pr_url }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-  #     - name: Create Pull Request from development to main
-  #       id: create_pr
-  #       uses: repo-sync/pull-request@v2
-  #       with:
-  #         source_branch: development
-  #         destination_branch: main
-  #         pr_title: "Auto PR: development to main"
-  #         pr_body: |
-  #           This PR was created from the development to main branch.
-  #       env:
-  #         GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
+      - name: Create Pull Request from development to main
+        id: create_pr
+        uses: repo-sync/pull-request@v2
+        with:
+          source_branch: development
+          destination_branch: main
+          pr_title: "Auto PR: development to main"
+          pr_body: |
+            This PR was created from the development to main branch.
+        env:
+          GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
 
-  #     - name: Wait for PR Merge
-  #       run: |
-  #         PR_NUMBER=$(gh pr list --state open --json number --jq '.[0].number' --repo "${{ github.repository }}")
-  #         while true; do
-  #           STATE=$(gh pr view "$PR_NUMBER" --repo "${{ github.repository }}" --json state -q .state)
-  #           if [ "$STATE" = "MERGED" ]; then
-  #             echo "PR #$PR_NUMBER has been merged!"
-  #             break
-  #           else
-  #             echo "Not merged yet. Waiting for approval..."
-  #             sleep 30
-  #           fi
-  #         done
-  #       env:
-  #         GH_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
+      - name: Wait for PR Merge
+        run: |
+          PR_NUMBER=$(gh pr list --state open --json number --jq '.[0].number' --repo "${{ github.repository }}")
+          while true; do
+            STATE=$(gh pr view "$PR_NUMBER" --repo "${{ github.repository }}" --json state -q .state)
+            if [ "$STATE" = "MERGED" ]; then
+              echo "PR #$PR_NUMBER has been merged!"
+              break
+            else
+              echo "Not merged yet. Waiting for approval..."
+              sleep 30
+            fi
+          done
+        env:
+          GH_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
