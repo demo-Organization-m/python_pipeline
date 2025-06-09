@@ -98,7 +98,7 @@ jobs:
       - name: Checkout Artifact Repo
         uses: actions/checkout@v4
         with:
-          repository: SoftwareStackSolutions/Artifact_Storage
+          repository: demo-Organization-m/Artifact_Storage
           ref: main
           token: ${{ secrets.MY_GITHUB_TOKEN }}
           path: Artifact_Storage
